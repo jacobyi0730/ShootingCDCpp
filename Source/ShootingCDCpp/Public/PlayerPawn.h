@@ -29,4 +29,15 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MyVar)
 	float speed = 500;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MyVar)
+	float h;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MyVar)
+	float v;
+
+public:
+	// 입력에 대한 함수를 선언하고싶다.
+	void OnMyAxisHorizontal( float value );
+	void OnMyAxisVertical( float value );
 };

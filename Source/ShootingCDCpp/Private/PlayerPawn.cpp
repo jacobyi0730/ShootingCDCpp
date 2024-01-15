@@ -24,9 +24,12 @@ void APlayerPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector P0 = GetActorLocation();
-	// 오른쪽 방향을 만들고 
-	FVector v = GetActorRightVector() * speed;
-	FVector vt = v * DeltaTime;
+	// 사용자의 입력방향을 기억하고싶다.
+	FVector dir = FVector(0, h, v);
+	dir.Normalize();
+
+	FVector _v = dir * speed;
+	FVector vt = _v * DeltaTime;
 	FVector newLoc = P0 + vt;
 	// 그 방향으로 이동하고싶다.
 	SetActorLocation( newLoc );
@@ -38,5 +41,19 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis(TEXT("Horizontal"), this, &APlayerPawn::OnMyAxisHorizontal);
+	
+	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &APlayerPawn::OnMyAxisVertical );
+
+}
+
+void APlayerPawn::OnMyAxisHorizontal( float value )
+{
+	h = value;
+}
+
+void APlayerPawn::OnMyAxisVertical( float value )
+{
+	v = value;
 }
 
