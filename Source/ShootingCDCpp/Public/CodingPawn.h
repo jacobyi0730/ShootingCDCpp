@@ -39,4 +39,20 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	FString myName = TEXT("이영훈");
+
+
+public:
+	// 함수 선언(Declare)
+	UFUNCTION(BlueprintCallable)
+	int32 MyAdd(int32 a, int32 b);
+
+	UFUNCTION(BlueprintPure)
+	int32 MyAddPure(int32 a, int32 b);
+
+	UFUNCTION( BlueprintCallable, BlueprintImplementableEvent)
+	int32 MyAddBP(int32 a, int32 b);
+
+	UFUNCTION( BlueprintCallable, BlueprintNativeEvent)
+	int32 MyAddNative(int32 a, int32 b);
+
 };

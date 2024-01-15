@@ -83,3 +83,19 @@ void ACodingPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
+// 정의/구현
+int32 ACodingPawn::MyAdd( int32 a , int32 b )
+{
+	return a + b;
+}
+
+int32 ACodingPawn::MyAddPure( int32 a , int32 b )
+{
+	return a + b;
+}
+
+int32 ACodingPawn::MyAddNative_Implementation( int32 a , int32 b )
+{
+	return a + b;
+}
+

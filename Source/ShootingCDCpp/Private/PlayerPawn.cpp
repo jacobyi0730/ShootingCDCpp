@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "PlayerPawn.h"
@@ -22,6 +22,14 @@ void APlayerPawn::BeginPlay()
 void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	FVector P0 = GetActorLocation();
+	// 오른쪽 방향을 만들고 
+	FVector v = GetActorRightVector() * speed;
+	FVector vt = v * DeltaTime;
+	FVector newLoc = P0 + vt;
+	// 그 방향으로 이동하고싶다.
+	SetActorLocation( newLoc );
 
 }
 
