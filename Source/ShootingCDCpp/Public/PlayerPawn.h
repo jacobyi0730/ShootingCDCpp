@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "PlayerPawn.generated.h"
 
+//class UStaticMeshComponent; // 전방선언 (정식)
+
 UCLASS()
 class SHOOTINGCDCPP_API APlayerPawn : public APawn
 {
@@ -40,4 +42,24 @@ public:
 	// 입력에 대한 함수를 선언하고싶다.
 	void OnMyAxisHorizontal( float value );
 	void OnMyAxisVertical( float value );
+
+public:
+	// 전방선언 (약식)
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* meshComp;
+
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* boxComp;
+
+	// 마우스 왼쪽 버튼을 누르면
+	// firePosition(Arrow)의 위치에 BulletActor를 생성해서 배치하고싶다.
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UArrowComponent* firePosition;
+
+	void OnMyActionFirePressed();
+	void OnMyActionFireReleased();
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ABulletActor> bulletFactory;
 };
