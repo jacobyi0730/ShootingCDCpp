@@ -3,10 +3,11 @@
 
 #include "PlayerPawn.h"
 
-#include "../../../../../../../Source/Runtime/Engine/Classes/Components/BoxComponent.h"
-#include "../../../../../../../Source/Runtime/Engine/Classes/Components/StaticMeshComponent.h"
-#include "../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/ArrowComponent.h"
 #include "BulletActor.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -21,6 +22,16 @@ APlayerPawn::APlayerPawn()
 	meshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("meshComp"));
 	// 루트에 붙이고싶다.
 	meshComp->SetupAttachment(RootComponent);
+
+	// Bullet과 Enemy에도 충돌설정을 반영해주세요!
+	// 충돌설정을 하고싶다.
+	boxComp->SetGenerateOverlapEvents( true );
+	boxComp->SetCollisionProfileName(TEXT("Player"));
+
+	// 몸의 충돌체는 NoCollision 시키고싶다.
+	meshComp->SetCollisionEnabled( ECollisionEnabled::NoCollision );
+
+
 
 	// Arrow 컴포넌트를 만들고
 	firePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("firePosition"));
@@ -40,15 +51,33 @@ void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// pseudo code (의사코드)
-	// 사용자의 입력을 받고 : SetupPlayerInputComponent
-	// 그 입력값으로 방향을 만들고
-	FVector dir = FVector(0, h, v);
-	dir.Normalize();
-	// 그 방향으로 이동하고싶다.(P = P0 + vt)
-	FVector P0 = GetActorLocation();
-	FVector vt = dir * speed * DeltaTime;
-	SetActorLocation( P0 + vt );
+	// 이동 코드====
+	{
+		// pseudo code (의사코드)
+		// 사용자의 입력을 받고 : SetupPlayerInputComponent
+		// 그 입력값으로 방향을 만들고
+		FVector dir = FVector( 0 , h , v );
+		dir.Normalize();
+		// 그 방향으로 이동하고싶다.(P = P0 + vt)
+		FVector P0 = GetActorLocation();
+		FVector vt = dir * speed * DeltaTime;
+		SetActorLocation( P0 + vt );
+	}
+	// 이동 코드====
+
+	//만약 bAutoFire가 true라면
+	if (bAutoFire)
+	{
+		//	시간이 흐르다가 
+		currentTime += DeltaTime;
+		//	만약 발사시간이되면
+		if (currentTime >= fireTime)
+		{
+			// MakeBullet함수를 호출하고싶다.
+			MakeBullet();
+			currentTime = 0;
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -61,6 +90,8 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &APlayerPawn::OnMyAxisVertical );
 
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &APlayerPawn::OnMyActionFirePressed);
+	
+	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &APlayerPawn::OnMyActionFireReleased);
 }
 
 void APlayerPawn::OnMyAxisHorizontal( float value )
@@ -75,13 +106,23 @@ void APlayerPawn::OnMyAxisVertical( float value )
 
 void APlayerPawn::OnMyActionFirePressed()
 {
-	FTransform t = firePosition->GetComponentTransform();
-	// 총알을 만들어서 총구위치에 배치하고싶다. 
-	GetWorld()->SpawnActor<ABulletActor>( bulletFactory , t );
+	bAutoFire = true;
+	MakeBullet();
 }
 
 void APlayerPawn::OnMyActionFireReleased()
 {
+	bAutoFire = false;
+	currentTime = 0;
+}
 
+void APlayerPawn::MakeBullet()
+{
+	// 총소리를 내고싶다.
+	UGameplayStatics::PlaySound2D( GetWorld() , fireSound );
+
+	FTransform t = firePosition->GetComponentTransform();
+	// 총알을 만들어서 총구위치에 배치하고싶다. 
+	GetWorld()->SpawnActor<ABulletActor>( bulletFactory , t );
 }
 

@@ -62,4 +62,19 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ABulletActor> bulletFactory;
+
+	UPROPERTY(EditAnywhere)
+	class USoundBase* fireSound;
+
+	// 자동총쏘기 기능을 만들고싶다.
+	// 누를때, 뗄때, Tick
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bAutoFire;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float currentTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float fireTime = 0.2f;
+
+	UFUNCTION(BlueprintCallable)
+	void MakeBullet();
 };
