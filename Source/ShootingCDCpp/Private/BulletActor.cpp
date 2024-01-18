@@ -33,6 +33,7 @@ void ABulletActor::BeginPlay()
 	Super::BeginPlay();
 	
 	boxComp->OnComponentBeginOverlap.AddDynamic(this, &ABulletActor::OnMyCompBeginOverlap);
+
 }
 
 // Called every frame
