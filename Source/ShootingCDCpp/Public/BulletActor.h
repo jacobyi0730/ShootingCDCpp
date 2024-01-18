@@ -23,6 +23,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// 총알과 부딪히면 너죽고 나죽고 하고싶다.
+	UFUNCTION()
+	void OnMyCompBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	// 충돌체와 몸(StaticMeshComp)을 갖고싶다.
 	// 앞방향으로 계속 이동하고싶다.
 
@@ -35,5 +39,11 @@ public:
 	// speed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float speed = 1000;
+
+	UPROPERTY(EditAnywhere)
+	class USoundBase* expSound;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* expVFX;
 
 };

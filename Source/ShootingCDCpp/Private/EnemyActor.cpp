@@ -4,6 +4,8 @@
 #include "EnemyActor.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerPawn.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemyActor::AEnemyActor()
@@ -21,7 +23,7 @@ AEnemyActor::AEnemyActor()
 
 	// 충돌설정을 하고싶다.
 	boxComp->SetGenerateOverlapEvents( true );
-	boxComp->SetCollisionProfileName(TEXT("Enemy"));
+	boxComp->SetCollisionProfileName( TEXT( "Enemy" ) );
 
 	// 몸의 충돌체는 NoCollision 시키고싶다.
 	meshComp->SetCollisionEnabled( ECollisionEnabled::NoCollision );
@@ -31,6 +33,9 @@ AEnemyActor::AEnemyActor()
 void AEnemyActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 박스컴포넌트의 충돌을 감지하고싶다.
+	boxComp->OnComponentBeginOverlap.AddDynamic(this, &AEnemyActor::OnMyCompBeginOverlap );
 
 	// 30%확률로 목적지를 향하는 방향, 나머지 확률로 앞방향
 	// 임의의 값을 하나 추출하고
@@ -64,9 +69,27 @@ void AEnemyActor::Tick( float DeltaTime )
 
 void AEnemyActor::NotifyActorBeginOverlap( AActor* OtherActor )
 {
-	// 너(OtherActor)죽고
-	OtherActor->Destroy();
-	//  나(this)죽자
-	this->Destroy();
+	//GEngine->AddOnScreenDebugMessage( -1 , 10 , FColor::Green , FString::Printf( TEXT( "OnMyCompBeginOverlap :: %s" ) , *OtherActor->GetName() ) );
+}
+
+void AEnemyActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	//GEngine->AddOnScreenDebugMessage( -1 , 10 , FColor::Green , FString::Printf( TEXT( "OnMyCompBeginOverlap :: %s" ) , *OtherActor->GetName() ) );
+	
+	// 만약 OtherActor가 플레이어라면
+	if (OtherActor->IsA<APlayerPawn>())
+	{
+		// 폭발 소리를 내고싶다.
+		UGameplayStatics::PlaySound2D( GetWorld() , expSound );
+		
+		// 폭발 VFX를 생성해서 배치하고싶다.
+		UGameplayStatics::SpawnEmitterAtLocation( GetWorld() , expVFX , GetActorLocation() );
+
+		// 너(OtherActor)죽고
+		OtherActor->Destroy();
+
+		//  나(this)죽자
+		this->Destroy();
+	}
 }
 

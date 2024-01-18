@@ -3,6 +3,8 @@
 
 #include "BulletActor.h"
 #include "../../../../../../../Source/Runtime/Engine/Classes/Components/BoxComponent.h"
+#include "EnemyActor.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 // Sets default values
 ABulletActor::ABulletActor()
@@ -30,6 +32,7 @@ void ABulletActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	boxComp->OnComponentBeginOverlap.AddDynamic(this, &ABulletActor::OnMyCompBeginOverlap);
 }
 
 // Called every frame
@@ -42,5 +45,24 @@ void ABulletActor::Tick(float DeltaTime)
 	FVector P0 = GetActorLocation();
 	FVector vt = dir * speed * GetWorld()->GetDeltaSeconds();
 	SetActorLocation( P0 + vt );
+}
+
+void ABulletActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponent , AActor* OtherActor , UPrimitiveComponent* OtherComp , int32 OtherBodyIndex , bool bFromSweep , const FHitResult& SweepResult )
+{
+	// 만약 OtherActor가 적이라면
+	if (OtherActor->IsA<AEnemyActor>())
+	{
+		// 폭발 소리를 내고싶다.
+		UGameplayStatics::PlaySound2D( GetWorld() , expSound );
+
+		// 폭발 VFX를 생성해서 배치하고싶다.
+		UGameplayStatics::SpawnEmitterAtLocation( GetWorld() , expVFX , GetActorLocation() );
+
+		// 너(OtherActor)죽고
+		OtherActor->Destroy();
+
+		//  나(this)죽자
+		this->Destroy();
+	}
 }
 
