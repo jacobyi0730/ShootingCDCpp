@@ -5,13 +5,14 @@
 #include "../../../../../../../Source/Runtime/Engine/Classes/Components/BoxComponent.h"
 #include "EnemyActor.h"
 #include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "ShootingCppGameModeBase.h"
 
 // Sets default values
 ABulletActor::ABulletActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	// 충돌체를 생성하고싶다.
-	boxComp = CreateDefaultSubobject<UBoxComponent>( TEXT("boxComp"));
+	boxComp = CreateDefaultSubobject<UBoxComponent>( TEXT( "boxComp" ) );
 	// 충돌체를 루트컴포넌트로하고싶다.
 	SetRootComponent( boxComp );
 	// 몸을 생성하고싶다.
@@ -21,7 +22,7 @@ ABulletActor::ABulletActor()
 
 	// 충돌설정을 하고싶다.
 	boxComp->SetGenerateOverlapEvents( true );
-	boxComp->SetCollisionProfileName(TEXT("Bullet"));
+	boxComp->SetCollisionProfileName( TEXT( "Bullet" ) );
 
 	// 몸의 충돌체는 NoCollision 시키고싶다.
 	meshComp->SetCollisionEnabled( ECollisionEnabled::NoCollision );
@@ -31,16 +32,16 @@ ABulletActor::ABulletActor()
 void ABulletActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	boxComp->OnComponentBeginOverlap.AddDynamic(this, &ABulletActor::OnMyCompBeginOverlap);
+
+	boxComp->OnComponentBeginOverlap.AddDynamic( this , &ABulletActor::OnMyCompBeginOverlap );
 
 }
 
 // Called every frame
-void ABulletActor::Tick(float DeltaTime)
+void ABulletActor::Tick( float DeltaTime )
 {
-	Super::Tick(DeltaTime);
-	
+	Super::Tick( DeltaTime );
+
 	// 앞방향으로 이동하고싶다.
 	FVector dir = GetActorForwardVector();
 	FVector P0 = GetActorLocation();
@@ -53,6 +54,14 @@ void ABulletActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponen
 	// 만약 OtherActor가 적이라면
 	if (OtherActor->IsA<AEnemyActor>())
 	{
+		// 점수를 1점 추가 하고싶다.
+		auto gm = Cast<AShootingCppGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (gm)
+		{
+			gm->AddScore( 1 );
+		}
+
+
 		// 폭발 소리를 내고싶다.
 		UGameplayStatics::PlaySound2D( GetWorld() , expSound );
 
@@ -64,6 +73,7 @@ void ABulletActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponen
 
 		//  나(this)죽자
 		this->Destroy();
+
 	}
 }
 

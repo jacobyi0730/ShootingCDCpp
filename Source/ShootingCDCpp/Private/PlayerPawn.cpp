@@ -59,6 +59,11 @@ void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	auto controller = UGameplayStatics::GetPlayerController(GetWorld() , 0);
+	// 마우스 커서를 보이지 않게 하고싶다.
+	controller->SetShowMouseCursor( false );
+	// 입력모드를 게임으로 하고싶다.
+	controller->SetInputMode( FInputModeGameOnly() );
 }
 
 // Called every frame
