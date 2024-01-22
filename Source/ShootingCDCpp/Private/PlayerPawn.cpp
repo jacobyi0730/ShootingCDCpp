@@ -17,11 +17,26 @@ APlayerPawn::APlayerPawn()
 	boxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("boxComp"));
 	// boxComp를 루트컴포넌트로 하고싶다.
 	this->SetRootComponent(boxComp);
+	boxComp->SetBoxExtent(FVector(50.f));
 
 	// meshComp를 생성해서
 	meshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("meshComp"));
 	// 루트에 붙이고싶다.
 	meshComp->SetupAttachment(RootComponent);
+
+	// mesh의 StaticMesh 파일을 로드하고싶다.
+	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/Models/SpaceShip/Spaceship_ARA.Spaceship_ARA'"));
+
+	// 로드를 성공했다면
+	if (tempMesh.Succeeded())
+	{
+		// meshComp의 staticmesh를 로드한 것으로 지정하고싶다.
+		meshComp->SetStaticMesh( tempMesh.Object );
+		// Mesh의 Transform을 설정하고싶다.
+		meshComp->SetRelativeRotation(FRotator(0, 90, 90));
+		meshComp->SetRelativeScale3D(FVector(4.15f));
+	}
+
 
 	// Bullet과 Enemy에도 충돌설정을 반영해주세요!
 	// 충돌설정을 하고싶다.
