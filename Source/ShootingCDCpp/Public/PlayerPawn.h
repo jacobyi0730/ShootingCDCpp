@@ -77,4 +77,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MakeBullet();
+
+	void AddDamage( int32 damage );
+	int32 GetHP();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 hp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 maxHP = 2;
+
 };

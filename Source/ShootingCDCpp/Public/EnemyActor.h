@@ -58,4 +58,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UGameOverWidget> gameOverUIFactory;
+
+	void DestroyMe();
+	void DestroyPlayer( AActor* OtherActor );
 };

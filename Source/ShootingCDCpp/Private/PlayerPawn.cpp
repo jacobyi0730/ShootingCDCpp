@@ -64,6 +64,9 @@ void APlayerPawn::BeginPlay()
 	controller->SetShowMouseCursor( false );
 	// 입력모드를 게임으로 하고싶다.
 	controller->SetInputMode( FInputModeGameOnly() );
+
+	// 태어날 때 체력을 최대체력으로 하고싶다.
+	hp = maxHP;
 }
 
 // Called every frame
@@ -146,3 +149,16 @@ void APlayerPawn::MakeBullet()
 	GetWorld()->SpawnActor<ABulletActor>( bulletFactory , t );
 }
 
+
+void APlayerPawn::AddDamage( int32 damage )
+{
+	/*hp -= damage;
+	if (hp < 0)
+		hp = 0;*/
+	hp = FMath::Max( hp - damage , 0 );
+}
+
+int32 APlayerPawn::GetHP()
+{
+	return hp;
+}

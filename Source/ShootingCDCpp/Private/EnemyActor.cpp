@@ -80,26 +80,42 @@ void AEnemyActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponent
 	// 만약 OtherActor가 플레이어라면
 	if (OtherActor->IsA<APlayerPawn>())
 	{
-		// 게임오버 UI를 생성해서 화면에 보이게 하고싶다.
-		auto gameOverUI = CreateWidget<UGameOverWidget>(GetWorld(), gameOverUIFactory );
+		auto player = Cast<APlayerPawn>( OtherActor );
+		player->AddDamage( 1 );
+		// 플레이어 체력이 0이되면 할일
+		if (player->GetHP() <= 0) {
+			DestroyPlayer( OtherActor );
+		}
 
-		gameOverUI->AddToViewport( 0 );
-		// 마우스 커서를 보이게하고 입력모드를 UI로 하고싶다.
-		auto controller = GetWorld()->GetFirstPlayerController();
-		controller->SetShowMouseCursor( true );
-		controller->SetInputMode( FInputModeUIOnly() );
-
-		// 폭발 소리를 내고싶다.
-		UGameplayStatics::PlaySound2D( GetWorld() , expSound );
-		
-		// 폭발 VFX를 생성해서 배치하고싶다.
-		UGameplayStatics::SpawnEmitterAtLocation( GetWorld() , expVFX , GetActorLocation() );
-
-		// 너(OtherActor)죽고
-		OtherActor->Destroy();
-
-		//  나(this)죽자
-		this->Destroy();
+		// 무조건해야할일
+		DestroyMe();
 	}
+}
+
+void AEnemyActor::DestroyMe()
+{
+	// 폭발 소리를 내고싶다.
+	UGameplayStatics::PlaySound2D( GetWorld() , expSound );
+
+	// 폭발 VFX를 생성해서 배치하고싶다.
+	UGameplayStatics::SpawnEmitterAtLocation( GetWorld() , expVFX , GetActorLocation() );
+
+	//  나(this)죽자
+	this->Destroy();
+}
+
+void AEnemyActor::DestroyPlayer( AActor* OtherActor )
+{
+	// 게임오버 UI를 생성해서 화면에 보이게 하고싶다.
+	auto gameOverUI = CreateWidget<UGameOverWidget>( GetWorld() , gameOverUIFactory );
+
+	gameOverUI->AddToViewport( 0 );
+	// 마우스 커서를 보이게하고 입력모드를 UI로 하고싶다.
+	auto controller = GetWorld()->GetFirstPlayerController();
+	controller->SetShowMouseCursor( true );
+	controller->SetInputMode( FInputModeUIOnly() );
+
+	// 너(OtherActor)죽고
+	OtherActor->Destroy();
 }
 
