@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerPawn.h"
 #include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "GameOverWidget.h"
 
 // Sets default values
 AEnemyActor::AEnemyActor()
@@ -79,6 +80,15 @@ void AEnemyActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponent
 	// 만약 OtherActor가 플레이어라면
 	if (OtherActor->IsA<APlayerPawn>())
 	{
+		// 게임오버 UI를 생성해서 화면에 보이게 하고싶다.
+		auto gameOverUI = CreateWidget<UGameOverWidget>(GetWorld(), gameOverUIFactory );
+
+		gameOverUI->AddToViewport( 0 );
+		// 마우스 커서를 보이게하고 입력모드를 UI로 하고싶다.
+		auto controller = GetWorld()->GetFirstPlayerController();
+		controller->SetShowMouseCursor( true );
+		controller->SetInputMode( FInputModeUIOnly() );
+
 		// 폭발 소리를 내고싶다.
 		UGameplayStatics::PlaySound2D( GetWorld() , expSound );
 		

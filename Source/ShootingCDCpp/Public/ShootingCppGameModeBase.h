@@ -19,10 +19,13 @@ public:
 
 	// 점수를 관리하고 싶다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int score;
+	int32 score;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 highScore;
 
 	UFUNCTION(BlueprintCallable)
-	void AddScore(int value);
+	void AddScore(int32 value);
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> scoreUIFactory;
@@ -30,4 +33,19 @@ public:
 	UPROPERTY()
 	class UScoreWidget* scoreUI;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString saveFileName = TEXT("HighScore");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 saveUserIndex;
+
+	UFUNCTION()
+	void SaveHighScore();
+
+	UFUNCTION()
+	void LoadHighScore();
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class USaveGame> saveGameFactory;
+	
 };

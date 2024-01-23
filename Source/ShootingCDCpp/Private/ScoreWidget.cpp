@@ -12,7 +12,8 @@ void UScoreWidget::NativeConstruct()
 	gm = Cast<AShootingCppGameModeBase>( gmb );
 }
 
-void UScoreWidget::SetScoreText( int score )
+void UScoreWidget::SetScoreText( int32 score, int32 highScore )
 {
+	TextHighScore->SetText( FText::AsNumber( highScore ) );
 	TextScore->SetText(FText::AsNumber( score ));
 }

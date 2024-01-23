@@ -18,7 +18,10 @@ public:
 	virtual void NativeConstruct() override;
 
 	// UI에 존재하는 텍스트의 문자열을 입력받은 score로 하고싶다.
-	void SetScoreText( int score );
+	void SetScoreText( int32 score, int32 highScore );
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* TextHighScore;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UTextBlock* TextScore;

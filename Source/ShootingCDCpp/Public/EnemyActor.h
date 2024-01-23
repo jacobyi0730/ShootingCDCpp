@@ -55,4 +55,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* expVFX;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UGameOverWidget> gameOverUIFactory;
 };
