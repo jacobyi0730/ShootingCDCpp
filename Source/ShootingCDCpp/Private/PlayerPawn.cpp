@@ -14,18 +14,18 @@ APlayerPawn::APlayerPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	// boxComp를 생성해서
-	boxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("boxComp"));
+	boxComp = CreateDefaultSubobject<UBoxComponent>( TEXT( "boxComp" ) );
 	// boxComp를 루트컴포넌트로 하고싶다.
-	this->SetRootComponent(boxComp);
-	boxComp->SetBoxExtent(FVector(50.f));
+	this->SetRootComponent( boxComp );
+	boxComp->SetBoxExtent( FVector( 50.f ) );
 
 	// meshComp를 생성해서
-	meshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("meshComp"));
+	meshComp = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "meshComp" ) );
 	// 루트에 붙이고싶다.
-	meshComp->SetupAttachment(RootComponent);
+	meshComp->SetupAttachment( RootComponent );
 
 	// mesh의 StaticMesh 파일을 로드하고싶다.
-	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/Models/SpaceShip/Spaceship_ARA.Spaceship_ARA'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh( TEXT( "/Script/Engine.StaticMesh'/Game/Models/SpaceShip/Spaceship_ARA.Spaceship_ARA'" ) );
 
 	// 로드를 성공했다면
 	if (tempMesh.Succeeded())
@@ -33,15 +33,15 @@ APlayerPawn::APlayerPawn()
 		// meshComp의 staticmesh를 로드한 것으로 지정하고싶다.
 		meshComp->SetStaticMesh( tempMesh.Object );
 		// Mesh의 Transform을 설정하고싶다.
-		meshComp->SetRelativeRotation(FRotator(0, 90, 90));
-		meshComp->SetRelativeScale3D(FVector(4.15f));
+		meshComp->SetRelativeRotation( FRotator( 0 , 90 , 90 ) );
+		meshComp->SetRelativeScale3D( FVector( 4.15f ) );
 	}
 
 
 	// Bullet과 Enemy에도 충돌설정을 반영해주세요!
 	// 충돌설정을 하고싶다.
 	boxComp->SetGenerateOverlapEvents( true );
-	boxComp->SetCollisionProfileName(TEXT("Player"));
+	boxComp->SetCollisionProfileName( TEXT( "Player" ) );
 
 	// 몸의 충돌체는 NoCollision 시키고싶다.
 	meshComp->SetCollisionEnabled( ECollisionEnabled::NoCollision );
@@ -49,7 +49,7 @@ APlayerPawn::APlayerPawn()
 
 
 	// Arrow 컴포넌트를 만들고
-	firePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("firePosition"));
+	firePosition = CreateDefaultSubobject<UArrowComponent>( TEXT( "firePosition" ) );
 	// 루트에 붙이고싶다.
 	firePosition->SetupAttachment( RootComponent );
 }
@@ -58,8 +58,8 @@ APlayerPawn::APlayerPawn()
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	auto controller = UGameplayStatics::GetPlayerController(GetWorld() , 0);
+
+	auto controller = UGameplayStatics::GetPlayerController( GetWorld() , 0 );
 	// 마우스 커서를 보이지 않게 하고싶다.
 	controller->SetShowMouseCursor( false );
 	// 입력모드를 게임으로 하고싶다.
@@ -67,12 +67,22 @@ void APlayerPawn::BeginPlay()
 
 	// 태어날 때 체력을 최대체력으로 하고싶다.
 	hp = maxHP;
+
+	// 탄창에 총알을 만들어서 넣고싶다.
+	for (int i = 0; i < bulletMaxCount; i++)
+	{
+		ABulletActor* bullet = GetWorld()->SpawnActor<ABulletActor>( bulletFactory );
+
+		bullet->SetActive( false );
+
+		magazine.Add( bullet );
+	}
 }
 
 // Called every frame
-void APlayerPawn::Tick(float DeltaTime)
+void APlayerPawn::Tick( float DeltaTime )
 {
-	Super::Tick(DeltaTime);
+	Super::Tick( DeltaTime );
 
 	// 이동 코드====
 	{
@@ -104,17 +114,17 @@ void APlayerPawn::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void APlayerPawn::SetupPlayerInputComponent( UInputComponent* PlayerInputComponent )
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	Super::SetupPlayerInputComponent( PlayerInputComponent );
 
-	PlayerInputComponent->BindAxis(TEXT("Horizontal"), this, &APlayerPawn::OnMyAxisHorizontal);
-	
-	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &APlayerPawn::OnMyAxisVertical );
+	PlayerInputComponent->BindAxis( TEXT( "Horizontal" ) , this , &APlayerPawn::OnMyAxisHorizontal );
 
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &APlayerPawn::OnMyActionFirePressed);
-	
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &APlayerPawn::OnMyActionFireReleased);
+	PlayerInputComponent->BindAxis( TEXT( "Vertical" ) , this , &APlayerPawn::OnMyAxisVertical );
+
+	PlayerInputComponent->BindAction( TEXT( "Fire" ) , IE_Pressed , this , &APlayerPawn::OnMyActionFirePressed );
+
+	PlayerInputComponent->BindAction( TEXT( "Fire" ) , IE_Released , this , &APlayerPawn::OnMyActionFireReleased );
 }
 
 void APlayerPawn::OnMyAxisHorizontal( float value )
@@ -145,8 +155,16 @@ void APlayerPawn::MakeBullet()
 	UGameplayStatics::PlaySound2D( GetWorld() , fireSound );
 
 	FTransform t = firePosition->GetComponentTransform();
-	// 총알을 만들어서 총구위치에 배치하고싶다. 
-	GetWorld()->SpawnActor<ABulletActor>( bulletFactory , t );
+	// 만약 탄창에 총알이 있으면
+	if (magazine.Num() > 0) {
+		// 총알을 가져와서 배치하고 
+		auto bullet = magazine[0];
+		bullet->SetActorTransform( t );
+		// 총알을 활성화 하고싶다. 
+		bullet->SetActive( true );
+		// 총알을 꺼냈으면 탄창에서 제외하고싶다.
+		magazine.RemoveAt( 0 );
+	}
 }
 
 

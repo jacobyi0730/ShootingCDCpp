@@ -3,6 +3,7 @@
 
 #include "DestroyZoneActor.h"
 #include "Components/BoxComponent.h"
+#include "BulletActor.h"
 
 // Sets default values
 ADestroyZoneActor::ADestroyZoneActor()
@@ -34,7 +35,16 @@ void ADestroyZoneActor::Tick(float DeltaTime)
 
 void ADestroyZoneActor::NotifyActorBeginOverlap( AActor* OtherActor )
 {
-	// 너만 파괴하고싶다.
-	OtherActor->Destroy();
+	// 만약 총알이라면 탄창에 다시 돌려주고싶다.
+	ABulletActor* bullet = Cast<ABulletActor>( OtherActor );
+	if (bullet)
+	{
+		bullet->GoMagazine();
+	}
+	// 그렇지 않다면
+	else{
+		// 너만 파괴하고싶다.
+		OtherActor->Destroy();
+	}
 }
 

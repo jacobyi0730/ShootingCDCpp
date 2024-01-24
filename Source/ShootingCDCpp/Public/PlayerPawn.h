@@ -87,4 +87,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 maxHP = 2;
 
+	// 오브젝트 풀
+	// 관리를 위한 목록
+	UPROPERTY()
+	TArray<class ABulletActor*> magazine;
+
+	UPROPERTY(EditAnywhere)
+	int32 bulletMaxCount = 10;
 };

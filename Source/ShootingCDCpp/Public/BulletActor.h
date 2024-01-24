@@ -46,4 +46,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* expVFX;
 
+	void SetActive( bool bValue );
+
+	void GoMagazine();
+
+	class APlayerPawn* player;
+
 };

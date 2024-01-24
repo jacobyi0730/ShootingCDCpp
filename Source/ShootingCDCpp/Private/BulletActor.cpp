@@ -6,6 +6,7 @@
 #include "EnemyActor.h"
 #include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "ShootingCppGameModeBase.h"
+#include "PlayerPawn.h"
 
 // Sets default values
 ABulletActor::ABulletActor()
@@ -55,7 +56,7 @@ void ABulletActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponen
 	if (OtherActor->IsA<AEnemyActor>())
 	{
 		// 점수를 1점 추가 하고싶다.
-		auto gm = Cast<AShootingCppGameModeBase>(GetWorld()->GetAuthGameMode());
+		auto gm = Cast<AShootingCppGameModeBase>( GetWorld()->GetAuthGameMode() );
 		if (gm)
 		{
 			gm->AddScore( 1 );
@@ -71,9 +72,27 @@ void ABulletActor::OnMyCompBeginOverlap( UPrimitiveComponent* OverlappedComponen
 		// 너(OtherActor)죽고
 		OtherActor->Destroy();
 
-		//  나(this)죽자
-		this->Destroy();
-
+		//  나(this)를 탄창에 넣어주자
+		GoMagazine();
 	}
+}
+
+void ABulletActor::SetActive( bool bValue )
+{
+	// 보이게하는부분 : meshComp
+	meshComp->SetVisibility( bValue );
+	// 충돌하는 부분 : boxComp
+	boxComp->SetCollisionEnabled( bValue ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision );
+}
+
+void ABulletActor::GoMagazine()
+{
+	// 플레이어를 찾아서 탄창에 넣어준다.
+	if (nullptr == player)
+	{
+		auto pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+		player = Cast<APlayerPawn>( pawn );
+	}
+	player->magazine.Add( this );
 }
 
